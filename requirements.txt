@@ -1,0 +1,22 @@
+# Core Flask
+Flask==2.3.2
+Werkzeug==2.3.7
+Jinja2==3.1.2
+
+# Database & ORM
+supabase==2.3.1
+python-dotenv==1.0.0
+psycopg2-binary==2.9.7
+
+# Security
+Flask-WTF==1.2.1
+WTForms==3.0.1
+Werkzeug==2.3.7  # Inclus pour la gestion des mots de passe
+
+# Utilitaires
+python-dotenv==1.0.0
+python-multipart==0.0.19  # Pour les uploads de fichiers
+
+# Développement (optionnel)
+Flask-DebugToolbar==0.13.1
+pytest==7.4.0

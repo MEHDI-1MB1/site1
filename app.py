@@ -2,10 +2,10 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from supabase import create_client, Client
+#from supabase import create_client, Client
 from dotenv import load_dotenv
 from flask_wtf.csrf import CSRFProtect
-
+from supabase import create_client, ClientOptions
 # Initialisation de l'application
 app = Flask(__name__)
 
@@ -20,8 +20,21 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 csrf = CSRFProtect(app)
 
 # Supabase Client
-supabase = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY'))
+#supabase = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY'))
 
+from supabase import create_client, ClientOptions
+import os
+
+# Configuration pour les nouvelles versions
+supabase = create_client(
+    supabase_url=os.getenv('SUPABASE_URL'),
+    supabase_key=os.getenv('SUPABASE_KEY'),
+    options=ClientOptions(
+        auto_refresh_token=True,
+        persist_session=True,
+        storage=None
+    )
+)
 
 def allowed_file(filename):
     return '.' in filename and \
