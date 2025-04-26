@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEM File Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="user-info-container">
+        <div class="user-info">
+            {% if is_admin %}
+                <span class="badge admin-badge">Admin</span>
+            {% endif %}
+            <span>{{ session.get('email', 'admin') }}</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div class="pem-container">
+        <!-- Header -->
+        <div class="pem-header">
+            <h1>PEM File Manager</h1>
+            <p>Manage your PEM files with admin privileges</p>
+
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search files...">
+            </div>
+        </div>
+        <!-- Add File Button - Visible seulement pour admin -->
+        {% if is_admin %}
+        <div class="add-file-container" style="text-align: left; margin-bottom: 1.5rem;">
+            <a href="{{ url_for('add_pem') }}" class="add-file-btn">
+                <i class="fas fa-plus"></i> Add New File
+            </a>
+        </div>
+        {% endif %}
+        <!-- File List -->
+        <div class="file-list-container">
+            {% if pem_files %}
+                {% for file in pem_files %}
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="file-info">
+                        <span class="file-name">{{ file.name }}</span>
+                        <span class="file-size">{{ file.size }}</span>
+                    </div>
+                    <div class="file-actions">
+                        <a href="{{ url_for('download_file', filename=file.name) }}" class="action-btn download-btn">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        {% if is_admin %}
+                        <a href="{{ url_for('delete_file', filename=file.name) }}" class="action-btn delete-btn" onclick="return confirm('Êtes-vous sûr?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No files found</p>
+                    <p>Start by adding some .pem files</p>
+                </div>
+            {% endif %}
+        </div>
+
+
+
+        <!-- Footer -->
+        <footer class="pem-footer">
+            <p>© 2025 PEM Vault. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Upload Form (hidden) -->
+    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" class="upload-form" id="uploadForm" style="display: none;">
+        <input type="file" name="file" id="fileInput" accept=".pem">
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+    document.querySelector('.add-file-btn')?.addEventListener('click', (e) => {
+        // Empêche le comportement par défaut seulement si c'est un lien
+        if (e.target.tagName === 'A' || e.target.parentElement.tagName === 'A') {
+            return; // Laisse le lien faire sa redirection normale
+        }
+        document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', () => {
+        if(document.getElementById('fileInput').files.length > 0) {
+            document.getElementById('uploadForm').submit();
+        }
+    });
+    </script>
+</body>
+</html>

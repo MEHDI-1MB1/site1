@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add PEM File - PEM Vault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="pem-container">
+        <header class="pem-header">
+            <h1>PEM File Manager</h1>
+            <p>Manage your PEM files with admin privileges</p>
+        </header>
+
+        <main class="pem-main">
+            <div class="form-container">
+                {% if not is_admin %}
+                    <div class="alert alert-danger">
+                        Action non autorisée - Admin seulement
+                    </div>
+                {% else %}
+                    <h2>Add New PEM File</h2>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('add_pem') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="file_name">File Name</label>
+                                <input type="text" id="file_name" name="file_name" placeholder="e.g. server-key.pem">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Upload PEM File</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="pem_file" name="pem_file" accept=".pem" required>
+                                    <label for="pem_file" class="file-upload-label">
+                                        <span id="file-chosen">No file chosen</span>
+                                        <span class="browse-btn">Choose file</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" name="description" rows="3" placeholder="A brief description of this file"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>File Content Preview</label>
+                            <div class="file-preview">
+                                <pre id="fileContent">PEM file content will appear here</pre>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="{{ url_for('dashboard') }}" class="btn cancel-btn">Cancel</a>
+                            <button type="submit" class="btn primary-btn">Add File</button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    {% if is_admin %}
+    <script>
+        // Afficher le nom du fichier sélectionné et mettre à jour le champ File Name
+        const fileInput = document.getElementById('pem_file');
+        const fileChosen = document.getElementById('file-chosen');
+        const fileNameInput = document.getElementById('file_name');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const filename = this.files[0].name;
+                // Enlever l'extension .pem si elle existe
+                const baseName = filename.replace(/\.pem$/i, '');
+
+                fileChosen.textContent = filename;
+                fileNameInput.value = baseName;
+
+                // Prévisualisation du contenu
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('fileContent').textContent = e.target.result;
+                };
+                reader.readAsText(this.files[0]);
+            } else {
+                fileChosen.textContent = 'No file chosen';
+                fileNameInput.value = '';
+                document.getElementById('fileContent').textContent = 'PEM file content will appear here';
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
